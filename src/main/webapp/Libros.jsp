@@ -56,5 +56,16 @@ out.print("<script>alert('"+mensaje+"');</script>");//mensaje alert javascript
 <div><input type="submit" name="consultar" value="Consultar"></div>
 </fieldset>
 </form>
+<hr>
+<form action="Libro" method="post" enctype="multipart/form-data">
+<div><label>Archivo: </label><input type="text" name="nombreArchivo">
+<input type="file" value="Examinar" name="archivo"></div>
+<div><input type="submit" name="cargar" value="Cargar Archivo tipo CSV"></div>
+</form>
 </body>
 </html>
+
+
+
+
+
