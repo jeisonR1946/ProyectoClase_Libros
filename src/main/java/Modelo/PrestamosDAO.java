@@ -35,7 +35,7 @@ public class PrestamosDAO {
 				while (res.next()) {
 					codigo = res.getInt(1);
 				}
-				sql = "update prestamo set fecha_devolucion=fecha_prestamo+7 where id_prestamo=?";
+				sql = "update prestamo set Fecha_devolucion=Fecha_prestamo+7 where Id_prestamo=?";
 				ps = con.prepareStatement(sql);
 				ps.setInt(1, codigo);
 				resul = ps.executeUpdate() > 0;

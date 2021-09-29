@@ -4,6 +4,8 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
+<script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="js/libro.js"></script>
 <title>Insert title here</title>
 </head>
 <body>
@@ -23,8 +25,13 @@
 	<form action="Prestamo" method="post">
 
 		<div>
-			<label>Codigo Libro: </label><input type="text" name="codigo"
-				required> <input type="submit" name="consultarlib"
+			<label>Codigo Libro: 
+			</label>
+			
+			<!-- <input type="text" name="codigo" required>  -->
+			<select class="ListaLibros" name="codigo"></select>
+		<!-- 	<input type="text" name="codigo" >  -->
+				<input type="submit" name="consultarlib"
 				value="Consultar">
 	</form>
 

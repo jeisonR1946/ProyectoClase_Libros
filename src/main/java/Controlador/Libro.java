@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import javax.swing.JOptionPane;
 
+import com.google.gson.Gson;
 
 import Modelo.LibroDAO;
 import Modelo.LibroDTO;
@@ -52,10 +55,10 @@ public class Libro extends HttpServlet {
 			paginas = Integer.parseInt(request.getParameter("paginas"));
 			LibroDTO libDto = new LibroDTO(codIsbn, titulo, editorial, autor, paginas);
 			if (libDao.Inserta_Libro(libDto)) {
-		//		JOptionPane.showMessageDialog(null, "Libro Registrado Exitosamente.");
+				JOptionPane.showMessageDialog(null, "Libro Registrado Exitosamente.");
 				response.sendRedirect("Libros.jsp?men=Libro Registrado Exitosamente.");
 			} else {
-		//		JOptionPane.showMessageDialog(null, "El libro no se Registro.");
+				JOptionPane.showMessageDialog(null, "El libro no se Registro.");
 				response.sendRedirect("Libros.jsp?men=El libro no se Registro.");
 			}
 		}
@@ -67,7 +70,6 @@ public class Libro extends HttpServlet {
 			codigo = request.getParameter("codigo");
 			LibroDTO lib = libDao.Buscar_Libro(codigo);
 			if (lib != null) {
-
 				codigo = lib.getISBN();
 				titulo = lib.getTitulo();
 				editorial = lib.getEditorial();
@@ -75,11 +77,9 @@ public class Libro extends HttpServlet {
 				paginas = lib.getNo_paginas();
 				response.sendRedirect("Libros.jsp?codigo=" + codigo + "&&titulo=" + titulo + "&&editorial=" + editorial
 						+ "&&autor=" + autor + "&&paginas=" + paginas);
-
-			}else {
-				response.sendRedirect("Libros.jsp?men=El libro no existe");
+			} else {
+				response.sendRedirect("Libros.jsp?men=El Libro no existe");
 			}
-
 		}
 
 		if (request.getParameter("actualizar") != null) {
@@ -92,10 +92,10 @@ public class Libro extends HttpServlet {
 			paginas = Integer.parseInt(request.getParameter("paginas"));
 			LibroDTO libDto_Act = new LibroDTO(codIsbn, titulo, editorial, autor, paginas);
 			if (libDao.Actualizar_Libro(libDto_Act)) {
-			//	JOptionPane.showMessageDialog(null, "Libro se Actualizo Exitosamente.");
+				JOptionPane.showMessageDialog(null, "Libro se Actualizo Exitosamente.");
 				response.sendRedirect("Libros.jsp?men=Libro Actualizado Exitosamente.");
 			} else {
-			//	JOptionPane.showMessageDialog(null, "El libro no se Modifico.");
+				JOptionPane.showMessageDialog(null, "El libro no se Modifico.");
 				response.sendRedirect("Libros.jsp?men=El libro no se Modifico.");
 			}
 		}
@@ -103,58 +103,70 @@ public class Libro extends HttpServlet {
 		if (request.getParameter("eliminar") != null) {
 			String codIsbn;
 			codIsbn = request.getParameter("cod");
-			int op = JOptionPane.showConfirmDialog(null, "Seguro dese eliminar el libro: " + codIsbn);
+			int op = JOptionPane.showConfirmDialog(null, "Desea Eliminar el Libro cod: " + codIsbn);
 			if (op == 0) {
-
 				if (libDao.Eliminar_Libro(codIsbn)) {
-					response.sendRedirect("Libros.jsp?men=Libro eliminado");
+					response.sendRedirect("Libros.jsp?men=Libro Eliminado");
 				} else {
-					response.sendRedirect("Libros.jsp?men=Libro NO eliminado");
+					response.sendRedirect("Libros.jsp?men=Libro no se elimino");
 				}
+			} else {
+				response.sendRedirect("Libros.jsp");
 			}
 		}
-		
-		if(request.getParameter("cargar")!=null) {
-			
-			Part archivo= request.getPart("archivo");
-			String nombre=request.getParameter("nombreArchivo");
-		//	JOptionPane.showMessageDialog(null,archivo.getSubmittedFileName());
-			String url="C:\\Users\\jeiso\\eclipse-workspace\\Prestamos_31\\src\\main\\webapp\\Doc\\";
 
-			//JOptionPane.showMessageDialog(null,url);
-			
-			try {
-			
-				InputStream file= archivo.getInputStream();
-				File copia =  new File(url+nombre+".csv");
-				FileOutputStream escribir= new FileOutputStream(copia);
-				int  num= file.read();
-				while (num != -1) {
-					escribir.write(num);
-					num=file.read();
-				}
+		if (request.getParameter("cargar") != null) {
+			Part archivo = request.getPart("archivo");
+			String nombre = request.getParameter("nombreArchivo");
+			String Url ="C:/Doc/";
+			//String Url = "C:/Users/jeiso/eclipse-workspace/Prestamos_31/src/main/webapp/Doc/";
+			// JOptionPane.showMessageDialog(null, archivo.getSubmittedFileName());
+			//String Url = "C:/Users/jeiso/eclipse-workspace/Prestamos_31/src/main/webapp/Doc/";
+		//	String Url = "C:\\Users\\jeiso\\eclipse-workspace\\Prestamos_31\\src\\main\\webapp\\Doc\\";
+		//	String Url = "C://Users//jeiso//eclipse-workspace//Prestamos_31//src//main//webapp//Doc//";
+			// JOptionPane.showMessageDialog(null, Url);
+			if(archivo.getContentType().equals("application/vnd.ms-excel")) {
 				
-				escribir.close();
-				file.close();
-				JOptionPane.showMessageDialog(null,"Archivo cargado corectamente");
-				
-				
-				
-				if (libDao.CargarLibros(url+nombre+".csv")) {
+				try {
+					InputStream file = archivo.getInputStream();
+					File copia = new File(Url + nombre + ".csv");
+					FileOutputStream escribir = new FileOutputStream(copia);
+					int num = file.read();
+					while (num != -1) {
+						escribir.write(num);
+						num = file.read();
+					}
+					escribir.close();
+					file.close();
+					JOptionPane.showMessageDialog(null, "Archivo Cargado Correctamente");
+					if (libDao.CargarLibros(Url + nombre + ".csv")) {
+						
+						response.sendRedirect("Libros.jsp?men=Libros Registrado Correctamente");
+					} else {
+
+						response.sendRedirect("Libros.jsp?men=Libros no se Registraron");
+					}
+				} catch (Exception e) {
+					response.sendRedirect("Libros.jsp?men=Error al cargar Archivo" + e);
 					
-					JOptionPane.showMessageDialog(null,"Libros Registrados corectamente");
-				} else {
-					
-					JOptionPane.showMessageDialog(null,"Archivo No registrado");
 				}
+			} else {
 				
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,"erro al cargar el archivo: "+e);
+				response.sendRedirect("Libros.jsp?men=FORMATO NO VALIDO" );
+				
 			}
-			
+		
 		}
 		
+		//formato json para cragar select , cuabndio cargue el jsp
+		PrintWriter salida = response.getWriter();
+		ArrayList<LibroDTO> lista = new ArrayList<>();
+		lista = libDao.cargar_select();
+		Gson datos = new Gson();
+		salida.println(datos.toJson(lista));
 		
 		
+
 	}
+
 }
